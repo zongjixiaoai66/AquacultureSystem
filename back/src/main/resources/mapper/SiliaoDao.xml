@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.SiliaoDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.siliao_uuid_number as siliaoUuidNumber
+        ,a.siliao_name as siliaoName
+        ,a.siliao_photo as siliaoPhoto
+        ,a.siliao_file as siliaoFile
+        ,a.siliao_number as siliaoNumber
+        ,a.siliao_danwei as siliaoDanwei
+        ,a.siliao_types as siliaoTypes
+        ,a.siliao_content as siliaoContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.SiliaoView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM siliao  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.siliaoUuidNumber != '' and params.siliaoUuidNumber != null and params.siliaoUuidNumber != 'null' ">
+                and a.siliao_uuid_number like CONCAT('%',#{params.siliaoUuidNumber},'%')
+            </if>
+            <if test=" params.siliaoName != '' and params.siliaoName != null and params.siliaoName != 'null' ">
+                and a.siliao_name like CONCAT('%',#{params.siliaoName},'%')
+            </if>
+            <if test="params.siliaoNumberStart != null and params.siliaoNumberStart != ''">
+                <![CDATA[  and a.siliao_number >= #{params.siliaoNumberStart}   ]]>
+            </if>
+            <if test="params.siliaoNumberEnd != null and params.siliaoNumberEnd != ''">
+                <![CDATA[  and a.siliao_number <= #{params.siliaoNumberEnd}   ]]>
+            </if>
+             <if test="params.siliaoNumber != null and params.siliaoNumber != ''">
+                and a.siliao_number = #{params.siliaoNumber}
+             </if>
+            <if test=" params.siliaoDanwei != '' and params.siliaoDanwei != null and params.siliaoDanwei != 'null' ">
+                and a.siliao_danwei like CONCAT('%',#{params.siliaoDanwei},'%')
+            </if>
+            <if test="params.siliaoTypes != null and params.siliaoTypes != ''">
+                and a.siliao_types = #{params.siliaoTypes}
+            </if>
+            <if test=" params.siliaoContent != '' and params.siliaoContent != null and params.siliaoContent != 'null' ">
+                and a.siliao_content like CONCAT('%',#{params.siliaoContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

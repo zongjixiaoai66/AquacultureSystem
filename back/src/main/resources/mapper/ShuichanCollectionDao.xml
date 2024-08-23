@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShuichanCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.shuichan_id as shuichanId
+        ,a.yonghu_id as yonghuId
+        ,a.shuichan_collection_types as shuichanCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShuichanCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,shuichan.yonghu_id as shuichanYonghuId
+        ,shuichan.shuichan_name as shuichanName
+        ,shuichan.shuichan_uuid_number as shuichanUuidNumber
+        ,shuichan.shuichan_photo as shuichanPhoto
+        ,shuichan.shuichan_file as shuichanFile
+        ,shuichan.shuichan_types as shuichanTypes
+        ,shuichan.shuichan_number as shuichanNumber
+        ,shuichan.toufang_time as toufangTime
+        ,shuichan.laochu_time as laochuTime
+        ,shuichan.shuichan_content as shuichanContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.jinyong_types as jinyongTypes
+
+        FROM shuichan_collection  a
+        left JOIN shuichan shuichan ON a.shuichan_id = shuichan.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.shuichanId != null and params.shuichanId != ''">
+                and (
+                    a.shuichan_id = #{params.shuichanId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.shuichanCollectionTypes != null and params.shuichanCollectionTypes != ''">
+                and a.shuichan_collection_types = #{params.shuichanCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断水产的id不为空 -->
+            <if test=" params.shuichanIdNotNull != '' and params.shuichanIdNotNull != null and params.shuichanIdNotNull != 'null' ">
+                and a.shuichan_id IS NOT NULL
+            </if>
+            <if test="params.yangzhiquyuId != null  and params.yangzhiquyuId != ''">
+                and shuichan.yangzhiquyu_id = #{params.yangzhiquyuId}
+            </if>
+            <if test=" params.shuichanName != '' and params.shuichanName != null and params.shuichanName != 'null' ">
+                and shuichan.shuichan_name like CONCAT('%',#{params.shuichanName},'%')
+            </if>
+            <if test=" params.shuichanUuidNumber != '' and params.shuichanUuidNumber != null and params.shuichanUuidNumber != 'null' ">
+                and shuichan.shuichan_uuid_number like CONCAT('%',#{params.shuichanUuidNumber},'%')
+            </if>
+            <if test="params.shuichanTypes != null  and params.shuichanTypes != ''">
+                and shuichan.shuichan_types = #{params.shuichanTypes}
+            </if>
+
+            <if test="params.shuichanNumberStart != null  and params.shuichanNumberStart != '' ">
+                <![CDATA[  and shuichan.shuichan_number >= #{params.shuichanNumberStart}   ]]>
+            </if>
+            <if test="params.shuichanNumberEnd != null  and params.shuichanNumberEnd != '' ">
+                <![CDATA[  and shuichan.shuichan_number <= #{params.shuichanNumberEnd}   ]]>
+            </if>
+            <if test="params.shuichanNumber != null  and params.shuichanNumber != '' ">
+                and shuichan.shuichan_number = #{params.shuichanNumber}
+            </if>
+            <if test=" params.toufangTimeStart != '' and params.toufangTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shuichan.toufang_time) >= UNIX_TIMESTAMP(#{params.toufangTimeStart}) ]]>
+            </if>
+            <if test=" params.toufangTimeEnd != '' and params.toufangTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shuichan.toufang_time) <= UNIX_TIMESTAMP(#{params.toufangTimeEnd}) ]]>
+            </if>
+            <if test=" params.laochuTimeStart != '' and params.laochuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shuichan.laochu_time) >= UNIX_TIMESTAMP(#{params.laochuTimeStart}) ]]>
+            </if>
+            <if test=" params.laochuTimeEnd != '' and params.laochuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shuichan.laochu_time) <= UNIX_TIMESTAMP(#{params.laochuTimeEnd}) ]]>
+            </if>
+            <if test=" params.shuichanContent != '' and params.shuichanContent != null and params.shuichanContent != 'null' ">
+                and shuichan.shuichan_content like CONCAT('%',#{params.shuichanContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shuichan.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(shuichan.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and yonghu.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
